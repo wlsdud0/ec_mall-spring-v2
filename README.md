@@ -1,7 +1,80 @@
-# eCommerce Mall
-## 온라인 쇼핑 플랫폼
-- spring으로 만들어 본 온라인 쇼핑 웹사이트 프로젝트 (캡스톤 디자인)
+# eCommerce Mall 
+## 온라인 쇼핑 플랫폼 (캡스톤 디자인)
+- 프로젝트 기간 : 2024.04.08 ~ 2024.05.03
+- 상품을 쉽고 빠르게 등록해 매매할 수 있는 온라인 쇼핑 플랫폼.
 - 배포 : [Ecmall 웹사이트](https://ecmall.site)
+
+##  팀원 소개
+<br>
+<div align="center"> 
+<table>
+    <tr>
+        <td align="center">
+            <b>김소은</b>
+        </td>
+        <td align="center">
+            <b>허진영</b>
+        </td>
+        <td align="center">
+            <b>김규석</b>
+        </td>
+    </tr>
+  <tr>
+        <td align="center">
+            <br>
+            - 상품관리 / 배송기능 구현 <br>
+            - 관리자 회원관리 / 공지사항 구현 <br>
+            - HTTPS / 도메인 설정 <br>
+            <br>
+        </td>
+        <td align="center">
+            <br>
+            - 커뮤니티 기능 구현 <br>
+            - AWS EC2 배포 / AWS RDS MariaDB 구축<br>
+            - CI/CD 구축을 통해 배포 자동화 / 무중단 배포 <br>
+            <br>
+        </td>
+        <td align="center">
+            <br>
+            - 회원가입 / 로그인 기능 구현 <br>
+            - 사용자 계정 관리 기능 구현 <br>
+            - Thymeleaf를 사용해 화면 구현 <br>
+            <br>
+        </td>
+    </tr>
+</table>
+</div>
+<br>
+
+##  기술 스택
+
+<div align="center">
+  <p>💾 BACKEND</p>
+    <img src="https://img.shields.io/badge/Java 17-FF160B?style=flat-square&logo=java&logoColor=white"/>
+    <img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white"/>
+    <img src="https://img.shields.io/badge/Spring_data_jpa-6DB33F?style=flat-the-badge&logo=SpringSecurity&logoColor=white"/>
+    <img src="https://img.shields.io/badge/HTTP Interface-008FC7?style=flat-square&logo=jpa&logoColor=white"/>
+  <p>🖥️ FRONTEND</p>
+    <img src="https://img.shields.io/badge/HTML-E34F26?style=flat-square&logo=html5&logoColor=white"/>
+    <img src="https://img.shields.io/badge/CSS-1572B6?style=flat-square&logo=css3&logoColor=white"/>
+    <img src="https://img.shields.io/badge/BootStrap-7952B3?style=flat-square&logo=bootstrap&logoColor=white"/>
+    <img src="https://img.shields.io/badge/Thymeleaf-005F0F?style=flat-square&logo=thymeleaf&logoColor=white"/>
+    <img src="https://img.shields.io/badge/JavaSript-F7DF1E?style=flat-square&logo=javascript&logoColor=white"/>
+  <p>⚒️ ETC</p>
+    <img src="https://img.shields.io/badge/AWS S3-569A31?style=flat-square&logo=amazon s3&logoColor=white"/>
+    <img src="https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white"/>
+    <img src="https://img.shields.io/badge/MariaDB-003545?style=flat-the-badge&logo=mariadb&logoColor=white"/>
+    <img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white"/>
+    <img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white"/>
+    <img src="https://img.shields.io/badge/Notion-000000?style=flat-square&logo=notion&logoColor=white"/>
+  <br>
+    <img src="https://img.shields.io/badge/Amazon EC2-FF9900?style=flat-square&logo=amazonec2&logoColor=white"/>
+    <img src="https://img.shields.io/badge/Amazon RDS-527FFF?style=flat-square&logo=amazonrds&logoColor=white"/>
+    <img src="https://img.shields.io/badge/GitHub Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white"/>
+    <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white"/>
+    <img src="https://img.shields.io/badge/-NGINX-009639?style=flat&logo=nginx&logoColor=white"/>
+<br>
+</div>
 
 ## 설계
 ### 유스케이스 다이어그램
@@ -10,12 +83,18 @@
 
 ### 시스템 구성 다이어그램
 
+![시스템 구성 다이그램](./img/시스템%20구성%20다이어그램.png)
+
 ### ERD
 
 ![ERD](./img/ERD.png)
 
+### 팀 규칙
+![팀 규칙](./img/팀%20규칙.png)
 
-## 주요기능
+
+
+## 기능 설명
 
 ### Unlogin User
 - 게시글 조회, 검색, 정렬 순서 선택
@@ -61,15 +140,3 @@
   - 공지사항 작성, 수정, 삭제
 - 로그인 회원의 모든 기능
   - 게시글에 관리자 답글 작성, 수정, 삭제
-
-
-## 사용된 기술
-- Java 17
-- SpringBoot 3.0.2
-- Spring MVC
-- Spring DataJPA
-- Thymeleaf
-- Gradle
-- Amazon EC2
-- MariaDB
-- Nginx
