@@ -1,6 +1,7 @@
 package hello.board.service.shop;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ import hello.board.repository.shop.product.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-//쇼핑몰 기능의 서비스 계층 아직 미구현
+//쇼핑몰 기능의 서비스 계층
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -47,7 +48,7 @@ public class ShopService {
 	@Transactional
 	public void productUpdate(Long productId,Product product) {
 		Product findProduct =  productRepository.findById(productId).orElse(null);
-		findProduct.setName(product.getName());
+		Objects.requireNonNull(findProduct).setName(product.getName());
 		findProduct.setPrice(product.getPrice());
 		findProduct.setQuantity(product.getQuantity());
 		log.info("category = {} ", product.getCategory());
@@ -90,7 +91,7 @@ public class ShopService {
 		for(Orders order : orders) {
 			orderRepository.save(order);
 			Product product = productRepository.findById(order.getProductId()).orElse(null);
-			product.setQuantity(product.getQuantity()-order.getQuantity());
+			Objects.requireNonNull(product).setQuantity(product.getQuantity()-order.getQuantity());
 		}
 	}
 
@@ -109,28 +110,28 @@ public class ShopService {
 	@Transactional
 	public void orderReceived(Long orderId){
 		Orders order = orderRepository.findById(orderId).orElse(null);
-		order.setStatus(OrderStatus.RECEIVED);
+		Objects.requireNonNull(order).setStatus(OrderStatus.RECEIVED);
 	}
 
 	@Transactional
 	public void orderPreparing(Long orderId) {
 		Orders order = orderRepository.findById(orderId).orElse(null);
-		order.setStatus(OrderStatus.PREPARING);
+		Objects.requireNonNull(order).setStatus(OrderStatus.PREPARING);
 	}
 	@Transactional
 	public void orderShipped(Long orderId) {
 		Orders order = orderRepository.findById(orderId).orElse(null);
-		order.setStatus(OrderStatus.SHIPPED);
+		Objects.requireNonNull(order).setStatus(OrderStatus.SHIPPED);
 	}
 	@Transactional
 	public void orderDelivered(Long orderId) {
 		Orders order = orderRepository.findById(orderId).orElse(null);
-		order.setStatus(OrderStatus.DELIVERED);
+		Objects.requireNonNull(order).setStatus(OrderStatus.DELIVERED);
 	}
 	@Transactional
 	public void orderCancelRequest(Long orderId) {
 		Orders order = orderRepository.findById(orderId).orElse(null);
-		if(order.getStatus()==OrderStatus.COMPLETED)
+		if(Objects.requireNonNull(order).getStatus()==OrderStatus.COMPLETED)
 			order.setStatus(OrderStatus.CANCELLED);
 		else
 			order.setStatus(OrderStatus.CANCEL_REQUEST);
@@ -138,14 +139,14 @@ public class ShopService {
 	@Transactional
 	public void orderCancelRequestCancel(Long orderId) {
 		Orders order = orderRepository.findById(orderId).orElse(null);
-		order.setStatus(OrderStatus.COMPLETED);
+		Objects.requireNonNull(order).setStatus(OrderStatus.COMPLETED);
 	}
 
 	@Transactional
 	public void orderCancel(Long orderId) {
 		Orders order = orderRepository.findById(orderId).orElse(null);
 		Product product = productRepository.findById(order.getProductId()).orElse(null);
-		product.setQuantity(product.getQuantity()+order.getQuantity());
+		Objects.requireNonNull(product).setQuantity(product.getQuantity()+order.getQuantity());
 		order.setStatus(OrderStatus.CANCELLED);
 	}
 }
