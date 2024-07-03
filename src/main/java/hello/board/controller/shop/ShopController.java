@@ -83,7 +83,8 @@ public class ShopController {
 						String uuid= UUID.randomUUID().toString();
 						product.setImagePath(uuid+".png");
 						byte[] bytes = file.getBytes();
-						Path path=Paths.get("./게시판,회원관리,공지사항,쇼핑몰/board/src/main/resources/static/shop/image/"+uuid+".png");
+						Path path=Paths.get("./src/main/resources/static/shop/image/"+uuid+".png");
+//						Path path=Paths.get("./게시판,회원관리,공지사항,쇼핑몰/board/src/main/resources/static/shop/image/"+uuid+".png");
 						Files.createDirectories(path.getParent());
 						Files.write(path, bytes);
 						product.setMemberId((Long)session.getAttribute("memberId"));

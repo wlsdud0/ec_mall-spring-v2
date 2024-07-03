@@ -145,7 +145,7 @@ public class ShopService {
 	@Transactional
 	public void orderCancel(Long orderId) {
 		Orders order = orderRepository.findById(orderId).orElse(null);
-		Product product = productRepository.findById(order.getProductId()).orElse(null);
+		Product product = productRepository.findById(Objects.requireNonNull(order).getProductId()).orElse(null);
 		Objects.requireNonNull(product).setQuantity(product.getQuantity()+order.getQuantity());
 		order.setStatus(OrderStatus.CANCELLED);
 	}
