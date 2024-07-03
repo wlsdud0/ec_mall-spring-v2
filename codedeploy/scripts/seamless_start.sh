@@ -28,8 +28,13 @@ fi
 # nest_run 기록
 echo "$next_run" > "$HOME/last_run"
 
-# next_run 포트에 새 버전을 실행한다.
-docker run --rm -d -p "$next_run:8080" --name "ec_mall-app-$next_run" wlsdud0/ec_mall-boot:latest
+# 이미지 저장 디렉토리 설정 (변경 가능)
+IMAGE_DIR="/home/ubuntu/images"
+
+# next_run 포트에 새 버전을 실행한다. (볼륨 마운트 추가)
+docker run --rm -d -p "$next_run:8080" --name "ec_mall-app-$next_run" \
+  -v "$IMAGE_DIR:/app/images" \  # 이미지 저장 디렉토리 마운트
+  wlsdud0/ec_mall-boot:latest
 
 # 이전 설정이 있는 경우 지운다음
 if [ $last_run -ne -1 ]; then

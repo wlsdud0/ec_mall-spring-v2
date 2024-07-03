@@ -1,5 +1,22 @@
 package hello.board.controller.shop;
 
+import hello.board.domain.*;
+import hello.board.service.member.MemberService;
+import hello.board.service.shop.ShopService;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,28 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-
-import hello.board.domain.Cart;
-import hello.board.domain.Member;
-import hello.board.domain.OrderStatus;
-import hello.board.domain.Orders;
-import hello.board.domain.Product;
-import hello.board.service.member.MemberService;
-import hello.board.service.shop.ShopService;
-import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-//쇼핑몰 기능은 아직 미완성
+//쇼핑몰 기능
 @Slf4j
 @Controller
 @RequestMapping("/shop/")
@@ -39,10 +35,13 @@ public class ShopController {
 	private final ShopService shopService;
 	private final MemberService memberService;
 
+	@Value("${image.upload.dir}")  // 이미지 저장 경로 설정
+	private String imageUploadDir;
+
 	@GetMapping("home")
 	public String shopHome(Model model, @RequestParam(defaultValue = "1") int page,
-			@RequestParam(defaultValue = "9" ) int maxResult,
-			@RequestParam(defaultValue = "BOOK",value = "category") String category) {
+						   @RequestParam(defaultValue = "9" ) int maxResult,
+						   @RequestParam(defaultValue = "BOOK",value = "category") String category) {
 
 		long count = shopService.getProductCount(category);
 		long totalPage = count%maxResult==0?count/maxResult:count/maxResult+1;
@@ -71,32 +70,50 @@ public class ShopController {
 		model.addAttribute("product",new Product());
 		return "shop/product-reg";
 	}
-	@PostMapping("product/reg")
-	public String product_reg(HttpSession session,@RequestParam MultipartFile file,Product product) throws IOException {
-		if(session.getAttribute("isSeller")!=null) {
-			if((boolean)session.getAttribute("isSeller")) {
-				try {
-					log.info("file={}",file);
-					if(file.getSize()==0) {
-						return "shop/empty-file";
-					}else {
-						String uuid= UUID.randomUUID().toString();
-						product.setImagePath(uuid+".png");
-						byte[] bytes = file.getBytes();
-						Path path=Paths.get("./src/main/resources/static/shop/image/"+uuid+".png");
-//						Path path=Paths.get("./게시판,회원관리,공지사항,쇼핑몰/board/src/main/resources/static/shop/image/"+uuid+".png");
-						Files.createDirectories(path.getParent());
-						Files.write(path, bytes);
-						product.setMemberId((Long)session.getAttribute("memberId"));
-						shopService.productReg(product);
-					}
-				}catch(IOException e) {
-					e.printStackTrace();
-					return "shop/empty-file";
-				}
-			}else {
-				return "shop/notSeller";
+	@GetMapping("/image/{fileName}")
+	public ResponseEntity<Resource> getImage(@PathVariable String fileName) {
+		try {
+			Path filePath = Paths.get(imageUploadDir, fileName);
+			Resource resource = new UrlResource(filePath.toUri());
+
+			if (resource.exists() && resource.isReadable()) {
+				return ResponseEntity.ok()
+						.header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(filePath)) // 파일 유형 헤더 추가
+						.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+						.body(resource);
+			} else {
+				return ResponseEntity.notFound().build();
 			}
+		} catch (IOException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	@PostMapping("product/reg")
+	public String product_reg(HttpSession session, @RequestParam MultipartFile file, Product product) throws IOException {
+		if (session.getAttribute("isSeller") != null && (boolean) session.getAttribute("isSeller")) {
+			try {
+				log.info("file={}", file);
+				if (file.isEmpty()) {
+					return "shop/empty-file"; // 이미지 파일이 없는 경우 처리
+				} else {
+					String uuid = UUID.randomUUID().toString();
+					String fileName = uuid + ".png";
+					product.setImagePath(fileName);
+
+					byte[] bytes = file.getBytes();
+					Path path = Paths.get(imageUploadDir, fileName); // Docker 볼륨 경로 사용
+					Files.createDirectories(path.getParent());       // 필요한 경우 상위 디렉토리 생성
+					Files.write(path, bytes);
+
+					product.setMemberId((Long) session.getAttribute("memberId"));
+					shopService.productReg(product);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				return "shop/empty-file";
+			}
+		} else {
+			return "shop/notSeller";
 		}
 		return "redirect:/shop/home";
 	}
@@ -109,16 +126,16 @@ public class ShopController {
 	@GetMapping("product/update/{id}")
 	public String productUpdate(@PathVariable("id") Long productId,HttpSession session,Model model) {
 		Product product = shopService.getProduct(productId);
-		if(!product.getMemberId().equals((Long)session.getAttribute("memberId"))) 
+		if(!product.getMemberId().equals((Long)session.getAttribute("memberId")))
 			return "shop/product-memberCheck-fail";
 		model.addAttribute("product",product);
 		return "shop/product-update";
 	}
 	@PostMapping("product/update/{id}")
 	public String productUpdate(@PathVariable("id") Long productId,
-			HttpSession session,Product product,
-			@RequestParam("file") MultipartFile file,
-			@RequestParam("category") String category) throws IOException {
+								HttpSession session,Product product,
+								@RequestParam("file") MultipartFile file,
+								@RequestParam("category") String category) throws IOException {
 		if(!(boolean)session.getAttribute("isSeller"))
 			return "shop/notSeller";
 		Product findProduct = shopService.getProduct(productId);
@@ -197,7 +214,7 @@ public class ShopController {
 		boolean cartOrder = (boolean)session.getAttribute("cartOrder");
 		if(payment) {
 			List<Orders> orders = (List<Orders>)session.getAttribute("orders");
-			for(Orders order : orders) 
+			for(Orders order : orders)
 				order.setStatus(OrderStatus.COMPLETED);
 			shopService.createOrder(orders,(Long)session.getAttribute("memberId"),cartOrder);
 			return "shop/payment-success";
@@ -241,7 +258,7 @@ public class ShopController {
 		Member member = memberService.info((Long)session.getAttribute("memberId"));
 		if(!member.isSeller())
 			return "shop/notSeller";
-		
+
 		List<Orders> orders = shopService.myProductOrderList((Long)session.getAttribute("memberId"));
 		model.addAttribute("orders",orders);
 		return "shop/myProduct-order-list";
@@ -252,7 +269,7 @@ public class ShopController {
 		Long memberId = (Long)session.getAttribute("memberId");
 		if(!memberId.equals(order.getSellerId()))
 			return "admin/notAdmin";
-		
+
 		shopService.orderReceived(orderId);
 		return "redirect:/shop/myProduct/order/list";
 	}
@@ -262,7 +279,7 @@ public class ShopController {
 		Long memberId = (Long)session.getAttribute("memberId");
 		if(!memberId.equals(order.getSellerId()))
 			return "admin/notAdmin";
-		
+
 		shopService.orderPreparing(orderId);
 		return "redirect:/shop/myProduct/order/list";
 	}
@@ -272,7 +289,7 @@ public class ShopController {
 		Long memberId = (Long)session.getAttribute("memberId");
 		if(!memberId.equals(order.getSellerId()))
 			return "admin/notAdmin";
-		
+
 		shopService.orderShipped(orderId);
 		return "redirect:/shop/myProduct/order/list";
 	}
@@ -282,18 +299,18 @@ public class ShopController {
 		Long memberId = (Long)session.getAttribute("memberId");
 		if(!memberId.equals(order.getMemberId()))
 			return "admin/notAdmin";
-		
+
 		shopService.orderDelivered(orderId);
 		return "redirect:/shop/myOrders";
 	}
-	
+
 	@GetMapping("order/cancel/request/{id}")
 	public String order_cancel_request(@PathVariable("id") Long orderId,HttpSession session) {
 		Orders order = shopService.getOrder(orderId);
 		Long memberId = (Long)session.getAttribute("memberId");
 		if(!memberId.equals(order.getMemberId()))
 			return "admin/notAdmin";
-		
+
 		shopService.orderCancelRequest(orderId);
 		return "redirect:/shop/myOrders";
 	}
@@ -303,7 +320,7 @@ public class ShopController {
 		Long memberId = (Long)session.getAttribute("memberId");
 		if(!memberId.equals(order.getMemberId()))
 			return "admin/notAdmin";
-		
+
 		shopService.orderCancelRequestCancel(orderId);
 		return "redirect:/shop/myOrders";
 	}
@@ -313,7 +330,7 @@ public class ShopController {
 		Long memberId = (Long)session.getAttribute("memberId");
 		if(!memberId.equals(order.getSellerId()))
 			return "admin/notAdmin";
-		
+
 		shopService.orderCancel(orderId);
 		return "redirect:/shop/myProduct/order/list";
 	}
@@ -329,6 +346,6 @@ public class ShopController {
 		}else {
 			return "admin/notAdmin";
 		}
-		
+
 	}
 }

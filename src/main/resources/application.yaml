@@ -1,3 +1,8 @@
 spring:
   profiles:
     active: docker
+
+# 이미지 업로드 경로 설정 추가 (Docker 볼륨 경로)
+image:
+  upload:
+    dir: /app/images

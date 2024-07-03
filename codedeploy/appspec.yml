@@ -16,6 +16,10 @@ permissions:
 
 # 순차적으로 실행할 스크립트를 지정하는 부분
 hooks:
+  BeforeInstall:
+    - location: scripts/before_install.sh # 새로 추가된 훅
+      timeout: 60
+      runas: ubuntu
   ApplicationStart:
     - location: scripts/seamless_start.sh
       timeout: 60

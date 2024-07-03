@@ -37,8 +37,9 @@
 			</tr>
 			<tr>
 				<th>상품이미지</th>
-				<td><img alt="" width="500" height="600"
-					th:src="|/shop/image/${product.imagePath}|"></td>
+				<td>
+					<img alt="" width="500" height="600" th:src="@{/shop/image/{imagePath}(imagePath=${product.imagePath})}">
+				</td>
 			</tr>
 		</table>
 		<hr>

@@ -1,15 +1,6 @@
 package hello.board.service.shop;
 
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.stereotype.Service;
-
-import hello.board.domain.Cart;
-import hello.board.domain.Member;
-import hello.board.domain.OrderStatus;
-import hello.board.domain.Orders;
-import hello.board.domain.Product;
+import hello.board.domain.*;
 import hello.board.repository.member.MemberRepository;
 import hello.board.repository.shop.cart.CartRepository;
 import hello.board.repository.shop.cart.JpaCartRepository;
@@ -20,6 +11,11 @@ import hello.board.repository.shop.product.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
 //쇼핑몰 기능의 서비스 계층
 @Slf4j
 @Service
@@ -32,6 +28,9 @@ public class ShopService {
 	private final CartRepository cartRepository;
 	private final JpaCartRepository jpaCartRepository;
 	private final MemberRepository memberRepository;
+
+	@Value("${image.upload.dir}")
+	private String imageUploadDir;
 
 	public List<Product> productList(int page, int maxResult,String category){
 		return jpaProductRepository.findByPage(page,maxResult,category);
@@ -84,7 +83,7 @@ public class ShopService {
 	public void createOrder(List<Orders> orders,Long memberId, boolean cartOrder) {
 		if(cartOrder) {
 			List<Cart> carts = jpaCartRepository.findByMember(memberRepository.findById(memberId).orElse(null));
-			for(Cart cart : carts) 
+			for(Cart cart : carts)
 				cartRepository.deleteById(cart.getId());
 		}
 

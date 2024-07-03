@@ -6,9 +6,15 @@ RUN ./gradlew bootJar
 RUN mv build/libs/*.jar app.jar
 
 # Runtime stage
-# COPY를 하되, build 단계에서 만든 app.jar만 가져온다.
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/app.jar .
+
+# 볼륨 설정 추가, 이미지 저장 디렉토리 설정
+VOLUME /app/images
+
+# CodeDeploy에서 빌드된 JAR 파일을 복사할 위치를 지정합니다.
+COPY app.jar .
+
 CMD ["java", "-jar", "app.jar"]
 EXPOSE 8080
