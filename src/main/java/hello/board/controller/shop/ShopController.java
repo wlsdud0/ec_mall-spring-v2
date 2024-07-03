@@ -5,8 +5,9 @@ import hello.board.service.member.MemberService;
 import hello.board.service.shop.ShopService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,8 +37,12 @@ public class ShopController {
 	private final ShopService shopService;
 	private final MemberService memberService;
 
-	@Value("${image.upload.dir}")  // 이미지 저장 경로 설정
-	private String imageUploadDir;
+//	@Value("${image.upload.dir}")  // 이미지 저장 경로 설정
+//	private String imageUploadDir;
+
+	@Autowired
+	private Environment env;
+
 
 	@GetMapping("home")
 	public String shopHome(Model model, @RequestParam(defaultValue = "1") int page,
@@ -72,24 +78,31 @@ public class ShopController {
 	}
 	@GetMapping("/image/{fileName}")
 	public ResponseEntity<Resource> getImage(@PathVariable String fileName) {
-		try {
-			Path filePath = Paths.get(imageUploadDir, fileName);
-			Resource resource = new UrlResource(filePath.toUri());
+		String imageUploadDir = env.getProperty("image.upload.dir", "/app/images"); // 기본값 설정
+		Path filePath = Paths.get(imageUploadDir, fileName);
 
+		try {
+			Resource resource = new UrlResource(filePath.toUri());
 			if (resource.exists() && resource.isReadable()) {
+				String contentType = Files.probeContentType(filePath);
 				return ResponseEntity.ok()
-						.header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(filePath)) // 파일 유형 헤더 추가
+						.header(HttpHeaders.CONTENT_TYPE, contentType)
 						.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
 						.body(resource);
 			} else {
+				log.warn("Image not found: {}", fileName);
 				return ResponseEntity.notFound().build();
 			}
+		} catch (MalformedURLException e) {
+			log.error("Invalid image URL: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		} catch (IOException e) {
+			log.error("Failed to read image: {}", e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
 	@PostMapping("product/reg")
-	public String product_reg(HttpSession session, @RequestParam MultipartFile file, Product product) throws IOException {
+	public String product_reg(HttpSession session, @RequestParam MultipartFile file, Product product) {
 		if (session.getAttribute("isSeller") != null && (boolean) session.getAttribute("isSeller")) {
 			try {
 				log.info("file={}", file);
@@ -101,15 +114,16 @@ public class ShopController {
 					product.setImagePath(fileName);
 
 					byte[] bytes = file.getBytes();
-					Path path = Paths.get(imageUploadDir, fileName); // Docker 볼륨 경로 사용
-					Files.createDirectories(path.getParent());       // 필요한 경우 상위 디렉토리 생성
+					String imageUploadDir = env.getProperty("image.upload.dir", "/app/images"); // 기본값 설정
+					Path path = Paths.get(imageUploadDir, fileName);
+					Files.createDirectories(path.getParent());
 					Files.write(path, bytes);
 
 					product.setMemberId((Long) session.getAttribute("memberId"));
 					shopService.productReg(product);
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error("Failed to upload image: {}", e.getMessage());
 				return "shop/empty-file";
 			}
 		} else {
