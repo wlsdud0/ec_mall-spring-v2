@@ -50,7 +50,7 @@
 			<div class="col-md-4" th:each="product, iterStat :${productList}">
 				<div class="card">
 					<a th:href="|/shop/product/${product.id}|">
-						<img class="card-img-top" width="300" height="200"
+						<img class="card-img-top" width="300" height="400"
 							 th:src="@{/shop/image/{imagePath}(imagePath=${product.imagePath})}" alt="Card image cap">
 					</a>
 					<div class="card-body">
