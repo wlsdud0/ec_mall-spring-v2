@@ -1,15 +1,9 @@
 package hello.board.service.board;
 
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import hello.board.domain.Board;
 import hello.board.domain.Comment;
 import hello.board.domain.Dislike;
 import hello.board.domain.Likes;
-import hello.board.domain.Member;
 import hello.board.repository.board.BoardRepository;
 import hello.board.repository.board.JpaBoardRepository;
 import hello.board.repository.board.comment.CommentRepository;
@@ -19,8 +13,16 @@ import hello.board.repository.board.dislike.JpaDislikeRepository;
 import hello.board.repository.board.like.JpaLikeRepository;
 import hello.board.repository.board.like.LikeRepository;
 import hello.board.repository.member.MemberRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
 //게시판 기능의 서비스계층
 @Service
 @RequiredArgsConstructor
@@ -49,7 +51,7 @@ public class BoardService {
 	@Transactional
 	public void update(Board board) {
 		Board findBoard = boardRepository.findById(board.getId()).orElse(null);
-		findBoard.setContent(board.getContent());
+		Objects.requireNonNull(findBoard).setContent(board.getContent());
 	}
 	//게시글 삭제
 	public void delete(Long id) {
@@ -66,8 +68,14 @@ public class BoardService {
 	//게시글 조회시 조회수+1
 	@Transactional
 	public void readCountUp(Long id) {
-		Board board = boardRepository.findById(id).orElse(null);
-		board.setReadCount(board.getReadCount()+1);
+		Board board = boardRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Board not found"));
+
+		try {
+			board.setReadCount((board.getReadCount() != null ? board.getReadCount() : 0) + 1); // null 체크 추가
+			boardRepository.save(board);
+		} catch (OptimisticLockException e) {
+			// 낙관적 락 예외 처리 로직 (예: 조회수 증가 재시도)
+		}
 	}
 	//댓글작성
 	public void commentReg(Comment comment,String userId,Long boardId) {
