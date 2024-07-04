@@ -22,14 +22,14 @@
   <tr>
         <td align="center">
             <br>
-            - 상품관리 / 배송기능 구현 <br>
+            - 커뮤니티 기능 구현 <br>
             - 관리자 회원관리 / 공지사항 구현 <br>
             - HTTPS / 도메인 설정 <br>
             <br>
         </td>
         <td align="center">
             <br>
-            - 커뮤니티 기능 구현 <br>
+            - 상품관리 / 배송기능 구현 <br>
             - AWS EC2 배포 / AWS RDS MariaDB 구축<br>
             - CI/CD 구축을 통해 배포 자동화 / 무중단 배포 <br>
             <br>
