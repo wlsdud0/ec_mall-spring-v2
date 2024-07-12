@@ -10,13 +10,13 @@
 <table>
     <tr>
         <td align="center">
-            <b>김소은</b>
+            <b>김성운</b>
         </td>
         <td align="center">
             <b>허진영</b>
         </td>
         <td align="center">
-            <b>김규석</b>
+            <b>조호진</b>
         </td>
     </tr>
   <tr>
