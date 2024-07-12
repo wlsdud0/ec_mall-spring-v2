@@ -1,55 +1,26 @@
 # eCommerce Mall 
 ## 온라인 쇼핑 플랫폼 (캡스톤 디자인)
-- 프로젝트 기간 : 2024.03.25 ~ 2024.05.03
-- 사용자가 직접 상품을 등록해 쉽고 빠르게 매매할 수 있는 온라인 쇼핑 플랫폼.
+- 상품을 등록하고 판매할 수 있는 온라인 쇼핑 웹사이트 프로젝트
 - 배포 : [Ecmall 웹사이트](https://ecmall.site)
 
+---
+
+###  구현 기능 소개
+
+    - 상품 관리 / 배송 기능 구현
+    - 관리자 회원관리 및 공지사항 서비스 구현
+    - HTTPS / 도매인 설정
+    - 커뮤니티 기능 구현
+    - AWS EC2 배포
+    - AWS RDS를 사용해 Maria DB 구축 
+    - CI/CD 구축을 통해 배포 자동화
+    - 회원가입 / 로그인 기능 구현
+    - 사용자 계정 관리 기능 구현
+    - Thymeleaf를 사용해 화면 구현
 
 
-
-##  팀원 소개
-<br>
-<div align="center"> 
-<table>
-    <tr>
-        <td align="center">
-            <b>김성운</b>
-        </td>
-        <td align="center">
-            <b>허진영</b>
-        </td>
-        <td align="center">
-            <b>조호진</b>
-        </td>
-    </tr>
-  <tr>
-        <td align="center">
-            <br>
-            - 커뮤니티 기능 구현 <br>
-            - 관리자 회원관리 / 공지사항 구현 <br>
-            - HTTPS / 도메인 설정 <br>
-            <br>
-        </td>
-        <td align="center">
-            <br>
-            - 사용자 계정관리 기능 구현 <br>
-            - AWS EC2 배포 / AWS RDS MariaDB 구축<br>
-            - CI/CD 구축을 통해 배포 자동화 / 무중단 배포 <br>
-            <br>
-        </td>
-        <td align="center">
-            <br>
-            - 상품관리 / 배송기능 구현 <br>
-            - 장바구니 / 주문상태 변경기능 구현 <br>
-            - Thymeleaf를 사용해 화면 구현 <br>
-            <br>
-        </td>
-    </tr>
-</table>
-</div>
-<br>
-
-##  기술 스택
+---
+###  기술 스택
 
 <div align="center">
   <p>💾 BACKEND</p>
@@ -79,6 +50,8 @@
 <br>
 </div>
 
+---
+
 ## 설계
 ### 유스케이스 다이어그램
 
@@ -86,16 +59,11 @@
 
 ### 시스템 구성 다이어그램
 
-![시스템 구성 다이그램](./img/시스템%20구성%20다이어그램.png)
-
 ### ERD
 
 ![ERD](./img/ERD.png)
 
-### 팀 규칙
-![팀 규칙](./img/팀%20규칙.png)
-
-
+---
 
 ## 기능 설명
 
